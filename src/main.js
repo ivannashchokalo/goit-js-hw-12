@@ -83,7 +83,7 @@ refs.showMoreBtn.addEventListener('click', async e => {
         console.log(cardRect);
         
         window.scrollBy({
-            top: cardRect.height,
+            top: (cardRect.height * 2),
             behavior: 'smooth',
         })
 
