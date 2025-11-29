@@ -22,6 +22,7 @@ refs.form.addEventListener('submit', async (e) => {
     query = formData.get('search-text').trim();
 
     page = 1;
+
     hideLoadMoreButton();
     showLoader();
     clearGallery();
@@ -36,18 +37,20 @@ refs.form.addEventListener('submit', async (e) => {
             iziToast.error({
                 message: "Sorry, there are no images matching your search query. Please try again!",
             });
-            hideLoader();
-            refs.form.reset();
             return;
         }
         createGallery(data.hits);
+        if (page < totalPages) {
+            showLoadMoreButton();
+        }
 
     } catch(error) {
-        console.error(error)
+        console.error(error);
+        iziToast.error({
+            message: "Something went wrong. Please try again later.",
+        });
     } finally {
-        showLoadMoreButton();
         hideLoader(); 
-        refs.form.reset();
   }
 });
 
@@ -61,6 +64,9 @@ refs.showMoreBtn.addEventListener('click', async e => {
         hideLoadMoreButton();
         return;
     }
+
+    showLoader();
+    hideLoadMoreButton();
 
     try {
         const data = await getImagesByQuery(query, page);
@@ -76,19 +82,34 @@ refs.showMoreBtn.addEventListener('click', async e => {
             refs.form.reset();
             return;
         }
+
         createGallery(data.hits);
 
         const firstCard = refs.galleryList.querySelector('li');
-        const cardRect = firstCard.getBoundingClientRect();
-        console.log(cardRect);
+        if (firstCard) {
+            const cardRect = firstCard.getBoundingClientRect();
+            window.scrollBy({
+                top: cardRect.height * 2, 
+                behavior: 'smooth',
+            });
+        }
         
-        window.scrollBy({
-            top: (cardRect.height * 2),
-            behavior: 'smooth',
-        })
+        if (page < totalPages) {
+            showLoadMoreButton();
+        } else {
+            hideLoadMoreButton();
+            iziToast.info({
+                message: "You've reached the end of search results.",
+            });
+        }
 
-    } catch(error) {
-        console.error(error)
+    } catch (error) {
+        console.error(error);
+        iziToast.error({
+            message: "Something went wrong. Please try again later.",
+        });
+    } finally {
+        hideLoader();
     }
 
 })
