@@ -21,6 +21,13 @@ refs.form.addEventListener('submit', async (e) => {
     const formData = new FormData(e.target);
     query = formData.get('search-text').trim();
 
+     if (!query) {
+        iziToast.warning({
+            message: "Please enter a search query before submitting!",
+        });
+        return;
+    }
+
     page = 1;
 
     hideLoadMoreButton();
